@@ -3,7 +3,7 @@
 #include <vector>
 #include<algorithm>
 #include <limits>
-using namespace std; 
+using namespace std;
 
 class Proceso {
 public: 
@@ -23,13 +23,14 @@ public:
 
 class MapaBits {
 private:
-    size_t size;                // Número total de bits
+    int size;                // Número total de bits
+    int size_bloque;
     vector<unsigned char> bits; // Vector para almacenar los bits
     vector<Proceso> procesos;   // Vector para almacenar los procesos
 
 public:
-    MapaBits(size_t n) : size(n) {
-        bits.resize((n + 7) / 8, 0); // Inicializar con el número necesario de bytes
+    MapaBits(int n, int s ) : size(n) , size_bloque(s) {
+        bits.resize((n/s)/8, 0); // Inicializar con el número necesario de bytes
     }
 
     Proceso* buscarProceso( string& nombre ) {
@@ -65,7 +66,7 @@ public:
         }
         int cantidadDisponible = 0; 
         int inicioCeldaDisponible = 0;
-        for ( int i = 0 ; i < 1024; i++ ) {
+        for ( int i = 0 ; i < size; i++ ) {
             if ( !consultarBit(i) ) {
                 cantidadDisponible++; 
             } else {
@@ -93,7 +94,7 @@ public:
     {
         int celda = 1;
 
-        for (int i = 0; i < bits.size() / 8; i++)
+        for (int i = 0; i < bits.size()/8; i++)
             cout << "       " << (i + 1) * 8;
 
         cout << endl;
@@ -146,16 +147,20 @@ public:
 };
 
 int main() {
-    int n = 1024; // Número de bits
-    MapaBits mapa(n);
+
+    int tM = 1024; 
+    int tB = 4096;
+
+    MapaBits* mapa = new MapaBits(tM*1024,tB);
 
     int opcion;
     do {
-        cout << "\n--- Menú ---\n";
+        cout << "\n\t--- Menú (Memoria: "<<tM*1024<<" Kb, bloque: "<<tB<<" bytes) ---\n";
         cout << "1. Insertar un proceso\n";
         cout << "2. Eliminar un proceso\n";
         cout << "3. Ver mapa\n";
-        cout << "4. Salir\n";
+        cout << "4. Configurar memoria\n";
+        cout << "5. Salir\n";
         cout << "Seleccione una opción: ";
         cin >> opcion;
 
@@ -174,10 +179,10 @@ int main() {
                 cin >> nombre;
                 cout << "Ingrese el tamaño del proceso: ";
                 cin >> tamaño;
-                if ( mapa.insertarProceso(tamaño, nombre) == false ) 
+                if ( mapa->insertarProceso(tamaño, nombre) == false ) 
                     cout<<"Error al insertar proceso, ya existe ese nombre o es demasiado grande"<<endl;
                 else {
-                    mapa.imprimirMapa();
+                    mapa->imprimirMapa();
                 }
                 break;
             }
@@ -185,23 +190,54 @@ int main() {
                 string nombre;
                 cout << "Ingrese el nombre del proceso a eliminar: ";
                 cin >> nombre;
-                if ( mapa.eliminarProceso(nombre) == false ) 
+                if ( mapa->eliminarProceso(nombre) == false ) 
                     cout<<"Error al eliminar el proceso, no se encontró"<<endl;
                 else {
-                    mapa.imprimirMapa();
+                    mapa->imprimirMapa();
                 }
                 break;
             }
-            case 3: 
-                mapa.imprimirMapa();
+            case 3: {
+                mapa->imprimirMapa();
                 break;
-            case 4:
+            }
+            case 4: {
+                int tMemoria;
+                int tBytes;
+
+                cout << "Ingrese tamaño de memoria(Kb): "; 
+                cin >> tMemoria; 
+                cout << "Ingrese tamaño de bloque de memoria(b): "; 
+                cin >> tBytes; 
+
+                int tMb = tMemoria*1024;
+
+                if ( tMb < tBytes ) 
+                    cout << "El tamaño de bloque es mayor a lo permitido\n";
+                else {
+                    double r = static_cast<double>(tMb)/tBytes;
+                    int r2 = tMb/tBytes; // division entera
+
+                    if ( (r - r2) != 0 || ((r/8)-r2/8) > 0 ) 
+                        cout << "El tamaño no es permitido\n";
+                   else {
+                        delete mapa; 
+                        mapa = new MapaBits(tMemoria*1024,tBytes);
+                        tM = tMemoria;
+                        tB = tBytes;
+                        cout <<"Mapa configurado\n";
+                    }
+                }
+                break;
+            }
+            case 5: {
                 cout << "Saliendo del programa." << endl;
                 break;
+            }
             default:
                 cout << "Opción no válida." << endl;
         }
-    } while (opcion != 4);
+    } while (opcion != 5);
 
 
     return 0;
