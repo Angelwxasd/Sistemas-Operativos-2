@@ -3,7 +3,7 @@
 #include <vector>
 #include<algorithm>
 #include <limits>
-using namespace std;
+using namespace std; 
 
 class Proceso {
 public: 
