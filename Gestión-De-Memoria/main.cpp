@@ -3,7 +3,7 @@
 #include <vector>
 #include<algorithm>
 #include <limits>
-using namespace std; 
+using namespace std;
 
 class Proceso {
 public: 
@@ -122,26 +122,46 @@ public:
 
     }
 
-    bool consultarBit(int pos) const {
-        if (pos < 0 || pos >= size) {
-            return false;
-        }
-        return (bits[pos/8] & (1 << pos%8)) != 0;
+void fijarUno(int pos) {
+    if (pos < 0 || pos >= size) {
+        return; // Validación para evitar accesos fuera de rango
     }
+    unsigned char mask = 1;
+    for (int i = 0; i < pos % 8; i++) {
+        mask = mask | mask; // Construcción de la máscara (OR consigo misma)
+    }
+    bits[pos / 8] = bits[pos / 8] | mask; // Fijar el bit con OR
+}
 
-    void fijarUno(int pos) {
-        if (pos < 0 || pos >= size) {
-            return;
-        }
-        bits[pos / 8] |= (1 << (pos % 8));
+void limpiarBit(int pos) {
+    if (pos < 0 || pos >= size) {
+        return; // Validación para evitar accesos fuera de rango
     }
+    unsigned char mask = 1;
+    for (int i = 0; i < pos % 8; i++) {
+        mask = mask | mask; // Construcción de la máscara (OR consigo misma)
+    }
+    // Generar máscara inversa manualmente con AND
+    unsigned char inverseMask = 0;
+    for (int i = 0; i < 8; i++) {
+        if ((mask & (1 << i)) == 0) {
+            inverseMask = inverseMask | (1 << i); // Construir la máscara inversa
+        }
+    }
+    bits[pos / 8] = bits[pos / 8] & inverseMask; // Limpiar el bit con AND
+}
 
-    void limpiarBit(int pos) {
-        if (pos < 0 || pos >= size) {
-            return;
-        }
-        bits[pos / 8] &= ~(1 << (pos % 8));
+bool consultarBit(int pos) const {
+    if (pos < 0 || pos >= size) {
+        return false; // Validación para evitar accesos fuera de rango
     }
+    unsigned char mask = 1;
+    for (int i = 0; i < pos % 8; i++) {
+        mask = mask | mask; // Construcción de la máscara (OR consigo misma)
+    }
+    return (bits[pos / 8] & mask) != 0; // Consultar el bit con AND
+}
+
 
 };
 
