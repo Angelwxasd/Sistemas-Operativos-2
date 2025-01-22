@@ -23,14 +23,14 @@ public:
 
 class MapaBits {
 private:
-    int size;                // Número total de bits
+    int size;               
     int size_bloque;
-    vector<unsigned char> bits; // Vector para almacenar los bits
-    vector<Proceso> procesos;   // Vector para almacenar los procesos
+    vector<unsigned char> bytes;
+    vector<Proceso> procesos;   
 
 public:
     MapaBits(int n, int s ) : size(n) , size_bloque(s) {
-        bits.resize((n/s)/8, 0); // Inicializar con el número necesario de bytes
+        bytes.resize((n/s)/8, 0); // Inicializar con el número necesario de bytes
     }
 
     Proceso* buscarProceso( string& nombre ) {
@@ -61,13 +61,17 @@ public:
     }
 
     bool insertarProceso ( int tamaño, string nombre ) {
-        if ( tamaño == 0  || tamaño > size || buscarProceso(nombre) ) {
+        if ( tamaño == 0  || (tamaño*size_bloque) > size || buscarProceso(nombre) ) {
             return false; 
         }
+
+        cout << " "<<tamaño<<" " << nombre << size <<endl;
+
         int cantidadDisponible = 0; 
         int inicioCeldaDisponible = 0;
-        for ( int i = 0 ; i < size; i++ ) {
+        for ( int i = 0 ; i < (bytes.size()*8); i++ ) {
             if ( !consultarBit(i) ) {
+                cout<<"Cantidad disponible en i: " << i<<endl;
                 cantidadDisponible++; 
             } else {
                 inicioCeldaDisponible = i+1; 
@@ -75,7 +79,7 @@ public:
             }
 
             if ( cantidadDisponible == tamaño ) {
-
+                cout << "Cantidad disponible igual a tamaño"<<endl;
                 Proceso p(nombre,inicioCeldaDisponible,inicioCeldaDisponible+tamaño-1);
                 procesos.push_back(p);
 
@@ -94,7 +98,7 @@ public:
     {
         int celda = 1;
 
-        for (int i = 0; i < bits.size()/8; i++)
+        for (int i = 0; i < bytes.size()/8; i++)
             cout << "       " << (i + 1) * 8;
 
         cout << endl;
@@ -104,9 +108,9 @@ public:
             cout << "<" << celda << "> ";
             celda++;
 
-            for (int i = 0; i < bits.size(); i++)
+            for (int i = 0; i < bytes.size(); i++)
             {
-                if (((bits[i] >> fila) & 1) == 1)
+                if (((bytes[i] >> fila) & 1) == 1)
                     cout << "■";
                 else
                     cout << "□";
@@ -123,48 +127,38 @@ public:
 
     }
 
-void fijarUno(int pos) {
-    if (pos < 0 || pos >= size) {
-        return; // Validación para evitar accesos fuera de rango
-    }
-    unsigned char mask = 1;
-    for (int i = 0; i < pos % 8; i++) {
-        mask = mask | mask; // Construcción de la máscara (OR consigo misma)
-    }
-    bits[pos / 8] = bits[pos / 8] | mask; // Fijar el bit con OR
-}
-
-void limpiarBit(int pos) {
-    if (pos < 0 || pos >= size) {
-        return; // Validación para evitar accesos fuera de rango
-    }
-    unsigned char mask = 1;
-    for (int i = 0; i < pos % 8; i++) {
-        mask = mask | mask; // Construcción de la máscara (OR consigo misma)
-    }
-    // Generar máscara inversa manualmente con AND
-    unsigned char inverseMask = 0;
-    for (int i = 0; i < 8; i++) {
-        if ((mask & (1 << i)) == 0) {
-            inverseMask = inverseMask | (1 << i); // Construir la máscara inversa
+    bool consultarBit(int pos) const {
+        if (pos < 0 || pos >= size) {
+            return false;
         }
+        return (bytes[pos/8] & (1 << pos%8)) != 0;
     }
-    bits[pos / 8] = bits[pos / 8] & inverseMask; // Limpiar el bit con AND
-}
 
-bool consultarBit(int pos) const {
-    if (pos < 0 || pos >= size) {
-        return false; // Validación para evitar accesos fuera de rango
+    void fijarUno(int pos) {
+        if (pos < 0 || pos >= size) {
+            return;
+        }
+        bytes[pos / 8] |= (1 << (pos % 8));
     }
-    unsigned char mask = 1;
-    for (int i = 0; i < pos % 8; i++) {
-        mask = mask | mask; // Construcción de la máscara (OR consigo misma)
-    }
-    return (bits[pos / 8] & mask) != 0; // Consultar el bit con AND
-}
 
+    void limpiarBit(int pos) {
+        if (pos < 0 || pos >= size) {
+            return;
+        }
+        bytes[pos / 8] &= ~(1 << (pos % 8));
+    }
 
 };
+
+bool revisarEntrada ( ) {
+    if (cin.fail()) {
+        cout << "Entrada no válida\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return true; 
+    }
+    return false;
+}
 
 int main() {
 
@@ -184,12 +178,7 @@ int main() {
         cout << "Seleccione una opción: ";
         cin >> opcion;
 
-        if (cin.fail()) {
-            cout << "Entrada no válida. Por favor, ingresa un número.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-        } 
+        if ( revisarEntrada() )  continue;
 
         switch (opcion) {
             case 1: {
@@ -197,10 +186,13 @@ int main() {
                 int tamaño;
                 cout << "Ingrese el nombre del proceso: ";
                 cin >> nombre;
-                cout << "Ingrese el tamaño del proceso: ";
+                cout << "Ingrese no. bloques del proceso: ";
                 cin >> tamaño;
+
+                if ( revisarEntrada() )  continue;
+
                 if ( mapa->insertarProceso(tamaño, nombre) == false ) 
-                    cout<<"Error al insertar proceso, ya existe ese nombre o es demasiado grande"<<endl;
+                    cout<<"Error al insertar proceso"<<endl;
                 else {
                     mapa->imprimirMapa();
                 }
@@ -227,15 +219,17 @@ int main() {
 
                 cout << "Ingrese tamaño de memoria(Kb): "; 
                 cin >> tMemoria; 
+                if ( revisarEntrada() )  continue;
                 cout << "Ingrese tamaño de bloque de memoria(b): "; 
                 cin >> tBytes; 
+                if ( revisarEntrada() )  continue;
 
                 int tMb = tMemoria*1024;
 
                 if ( tMb < tBytes ) 
                     cout << "El tamaño de bloque es mayor a lo permitido\n";
                 else {
-                    double r = static_cast<double>(tMb)/tBytes;
+                    double r = static_cast<double>(tMb)/tBytes; 
                     int r2 = tMb/tBytes; // division entera
 
                     if ( (r - r2) != 0 || ((r/8)-r2/8) > 0 ) 
