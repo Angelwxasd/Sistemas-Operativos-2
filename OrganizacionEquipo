@@ -1,0 +1,77 @@
+# Organización de Exposición MARVIN.
+
+### 1. Problemas actuales en la gestión de memoria móvil
+Contenido:
+
+Explicar por qué los sistemas móviles actuales (Android/iOS) matan apps en lugar de usar swap.
+
+Desafíos: límites fijos de memoria, falta de overcommit, coste de reiniciar apps, carga para desarrolladores.
+
+Ejemplo práctico:
+
+Gráfico comparativo del tiempo de reinicio de una app vs. recuperar su estado desde disco (basado en la Figura 4 del paper).
+
+Demo simple: simular en una app Android cómo el cierre abrupto pierde datos si no hay checkpoints.
+
+### 2. Diseño y características clave de Marvin
+Contenido:
+
+Explicar las 3 innovaciones:
+
+AOT Swap: Intercambio anticipado en disco.
+
+Estimador de conjunto de trabajo a nivel de objeto.
+
+Recolector de basura con marcadores (bookmarking GC).
+
+Ejemplo práctico:
+
+Diagrama animado del flujo de AOT Swap: cómo se guardan objetos en disco antes de reclamar memoria.
+
+Simulación de un objeto marcado como "frío" y su stub (usar código de ejemplo en C++ o pseudocódigo).
+
+### 3. Implementación técnica y arquitectura
+Contenido:
+
+Integración con Android Runtime (ART): modificaciones al intérprete y compilador.
+
+Tabla de reclamación y coordinación OS-Runtime.
+
+Interposición de accesos a objetos (ejecutado en código interpretado y compilado).
+
+Ejemplo práctico:
+
+Mostrar fragmentos de código modificado en ART (basado en la sección 7 del paper).
+
+Diagrama de la tabla de reclamación y cómo se bloquean entradas para evitar conflictos.
+
+### 4. Evaluación y resultados
+Contenido:
+
+Resultados experimentales: 2x más apps concurrentes, 60x más rápido en reclamar memoria.
+
+Overhead: impacto en tamaño de código y latencia.
+
+Limitaciones (ej. apps nativas, optimizaciones pendientes).
+
+Ejemplo práctico:
+
+Gráficos comparativos de uso de memoria (Figura 6 y 7 del paper).
+
+Tabla resumen de ventajas/desventajas vs. Android tradicional y Android con swap de Linux.
+
+Roles adicionales
+Coordinador: Asegurar coherencia entre secciones, manejar tiempos y transiciones.
+
+Diseñador visual: Crear diagramas, animaciones y diapositivas claras (ej. flujo de AOT Swap, estructura de stubs).
+
+Experto técnico: Investigar dudas específicas (ej. cómo funciona el bookmarking GC en detalle).
+
+Ensayo general: Practicar juntos para ajustar tiempos y mejorar la fluidez.
+
+Consejos finales
+Ejemplo unificador: Usar un caso de uso, como un usuario que abre múltiples apps (ej. redes sociales, navegador, juegos), para mostrar cómo Marvin evita cierres innecesarios.
+
+Interacción con la audiencia: Incluir una pregunta inicial como: "¿Alguna vez su teléfono se ha quedado sin memoria al cambiar entre apps?".
+
+Recursos visuales: Incluir capturas del prototipo de Marvin (si están disponibles) o recreaciones de las figuras del paper.
