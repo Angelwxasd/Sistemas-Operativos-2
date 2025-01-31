@@ -11,7 +11,7 @@ Ejemplo práctico:
 
 Gráfico comparativo del tiempo de reinicio de una app vs. recuperar su estado desde disco (basado en la Figura 4 del paper).
 
-Demo simple: simular en una app Android cómo el cierre abrupto pierde datos si no hay checkpoints.
+Demo simple: simular en una app Android cómo el cierre abrupto pierde datos si no hay checkpoints (Hacer algo referente en dado caso).
 
 ### 2. Diseño y características clave de Marvin
 Contenido:
@@ -28,7 +28,7 @@ Ejemplo práctico:
 
 Diagrama animado del flujo de AOT Swap: cómo se guardan objetos en disco antes de reclamar memoria.
 
-Simulación de un objeto marcado como "frío" y su stub (usar código de ejemplo en C++ o pseudocódigo).
+Simulación de un objeto marcado como "frío" y su stub (usar código de ejemplo en algún lenguaje o pseudocódigo).
 
 ### 3. Implementación técnica y arquitectura
 Contenido:
@@ -59,19 +59,5 @@ Ejemplo práctico:
 Gráficos comparativos de uso de memoria (Figura 6 y 7 del paper).
 
 Tabla resumen de ventajas/desventajas vs. Android tradicional y Android con swap de Linux.
-
-Roles adicionales
-Coordinador: Asegurar coherencia entre secciones, manejar tiempos y transiciones.
-
-Diseñador visual: Crear diagramas, animaciones y diapositivas claras (ej. flujo de AOT Swap, estructura de stubs).
-
-Experto técnico: Investigar dudas específicas (ej. cómo funciona el bookmarking GC en detalle).
-
-Ensayo general: Practicar juntos para ajustar tiempos y mejorar la fluidez.
-
-Consejos finales
-Ejemplo unificador: Usar un caso de uso, como un usuario que abre múltiples apps (ej. redes sociales, navegador, juegos), para mostrar cómo Marvin evita cierres innecesarios.
-
-Interacción con la audiencia: Incluir una pregunta inicial como: "¿Alguna vez su teléfono se ha quedado sin memoria al cambiar entre apps?".
 
 Recursos visuales: Incluir capturas del prototipo de Marvin (si están disponibles) o recreaciones de las figuras del paper.
